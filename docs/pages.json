@@ -1,0 +1,17 @@
+[
+  {
+    "pageKey": "Home",
+    "title": "书架",
+    "url": "/"
+  },
+  {
+    "pageKey": "Shelf",
+    "title": "我的书房",
+    "url": "/mine"
+  },
+  {
+    "pageKey": "Reader",
+    "title": "阅读器",
+    "url": "/read/:id"
+  }
+]

@@ -1,0 +1,136 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --font-serif: "Songti SC", "Source Han Serif SC", "Noto Serif SC", "STSong", "SimSun", Georgia, serif;
+  --font-sans: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+  --radius: 0.5rem;
+}
+
+:root {
+  --background: #f7f3ea;
+  --foreground: #1c1a17;
+  --card: #ffffff;
+  --card-foreground: #1c1a17;
+  --popover: #ffffff;
+  --popover-foreground: #1c1a17;
+  --primary: #1c1a17;
+  --primary-foreground: #f7f3ea;
+  --secondary: #efe9dc;
+  --secondary-foreground: #1c1a17;
+  --muted: #efe9dc;
+  --muted-foreground: #8a8272;
+  --accent: #f3ecdd;
+  --accent-foreground: #1c1a17;
+  --destructive: #8a2b1e;
+  --border: #e2dac9;
+  --input: #e2dac9;
+  --ring: #c9a227;
+
+  --ink: #1c1a17;
+  --paper: #f7f3ea;
+  --gold: #c9a227;
+  --gold-deep: #8a6d14;
+  --seal: #8a2b1e;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+  }
+  ::selection {
+    background: rgba(201, 162, 39, 0.28);
+  }
+}
+
+@utility container {
+  margin-inline: auto;
+  padding-inline: 1rem;
+  @media (width >= 640px) { max-width: 640px; }
+  @media (width >= 768px) { max-width: 768px; }
+  @media (width >= 1024px) { max-width: 1024px; }
+  @media (width >= 1280px) { max-width: 1180px; }
+}
+
+/* ---------- 阅读器排版 ---------- */
+.reader-body {
+  font-family: var(--font-serif);
+  text-align: justify;
+  word-break: break-word;
+}
+.reader-body p {
+  text-indent: 2em;
+  margin-bottom: 0.9em;
+  line-height: 1.95;
+}
+.reader-body p:first-child {
+  text-indent: 0;
+}
+
+/* 被锁定正文的模糊渲染（仅为视觉暗示，真实文本不在客户端） */
+.locked-ghost {
+  filter: blur(5px);
+  user-select: none;
+  pointer-events: none;
+  opacity: 0.55;
+}
+
+.fade-mask {
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 40%, rgba(0, 0, 0, 0.65) 70%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 40%, rgba(0, 0, 0, 0.65) 70%, transparent 100%);
+}
+
+@keyframes float-soft {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+.animate-float-soft {
+  animation: float-soft 5s ease-in-out infinite;
+}
+
+@keyframes shimmer-gold {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.gold-shimmer {
+  background: linear-gradient(90deg, rgba(201,162,39,0.15) 0%, rgba(201,162,39,0.5) 50%, rgba(201,162,39,0.15) 100%);
+  background-size: 200% 100%;
+  animation: shimmer-gold 2.4s linear infinite;
+}
+
+/* 滚动条 */
+.reader-scroll::-webkit-scrollbar { width: 8px; }
+.reader-scroll::-webkit-scrollbar-thumb {
+  background: rgba(28, 26, 23, 0.16);
+  border-radius: 999px;
+}

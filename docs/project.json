@@ -1,0 +1,8 @@
+{
+  "project_type": "web",
+  "sub_project_type": "",
+  "name": "夜读文库付费阅读站",
+  "app_slug": "night-read-library",
+  "version_description": "Build paid reading site with paywall",
+  "preview_type": "pc"
+}
