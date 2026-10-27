@@ -1,0 +1,37 @@
+# 构建上下文为项目根目录（见 docker-compose.yml）
+# 这样 Dockerfile 可以访问仓库根的 .dockerignore
+
+FROM node:22-alpine AS builder
+WORKDIR /app
+
+COPY backend/package.json backend/package-lock.json ./
+RUN npm ci --no-audit --no-fund
+
+COPY backend/tsconfig.json ./
+COPY backend/src ./src
+RUN npm run build && npm prune --omit=dev
+
+FROM node:22-alpine AS runner
+WORKDIR /app
+
+ENV NODE_ENV=production \
+    PORT=3000 \
+    API_PREFIX=/api \
+    DATA_DIR=/app/data
+
+RUN addgroup -g 1001 -S nodejs && adduser -S -u 1001 -G nodejs nodejs
+
+COPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
+COPY --from=builder --chown=nodejs:nodejs /app/package.json ./package.json
+
+RUN mkdir -p /app/data && chown -R nodejs:nodejs /app/data
+VOLUME ["/app/data"]
+USER nodejs
+
+EXPOSE 3000
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD node -e "fetch('http://127.0.0.1:'+(process.env.PORT||3000)+(process.env.API_PREFIX||'/api')+'/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+
+CMD ["node", "dist/index.js"]

@@ -1,0 +1,67 @@
+# ============================================================
+# 夜读文库 · 完整容器编排（前端 Nginx + 后端 Node）
+#
+# 说明：
+#   - 本地/私有服务器推荐用本文件，一条命令起全栈
+#   - 仅部署到 Railway / Zeabur 等 PaaS 时，只需 backend/Dockerfile
+#     （前端交给 Vercel / Netlify）
+#
+# 启动：docker compose up -d --build
+# 访问：http://localhost:8080
+# ============================================================
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.backend
+    image: readnetwork-backend:latest
+    container_name: readnetwork-backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      API_PREFIX: /api
+      DATA_DIR: /app/data
+      # 前端由同域 Nginx 反代，这里保持 * 即可；
+      # 若前端独立域名部署，改成该域名以启用凭证
+      CORS_ORIGIN: "*"
+      LOG_LEVEL: info
+    volumes:
+      # 订单与阅读进度落盘，容器重建不丢数据
+      - readnetwork-data:/app/data
+    networks:
+      - readnetwork
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  frontend:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.frontend
+    image: readnetwork-frontend:latest
+    container_name: readnetwork-frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "8080:80"
+    networks:
+      - readnetwork
+
+networks:
+  readnetwork:
+    driver: bridge
+
+volumes:
+  readnetwork-data:
+    driver: local

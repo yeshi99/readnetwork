@@ -39,19 +39,33 @@
 │   │   ├── middleware/       错误处理、日志、校验
 │   │   ├── app.ts            应用装配与路由注册
 │   │   └── index.ts          启动入口
+│   ├── Dockerfile            后端镜像（可独立部署到 Railway / Zeabur）
 │   └── package.json
-└── frontend/                 React 19 + Vite + Tailwind CSS 4
-    ├── src/
-    │   ├── pages/Index.tsx           书架首页
-    │   ├── pages/Reader.tsx          阅读页 + 付费墙
-    │   ├── pages/Shelf.tsx           我的书房
-    │   ├── components/CheckoutDialog.tsx  结算弹窗
-    │   ├── components/BookCover.tsx  纯 CSS 书封
-    │   ├── components/SiteHeader.tsx 站点头部
-    │   ├── lib/reader-api.ts         API 封装、类型、阅读偏好
-    │   └── App.tsx / index.css       路由与主题
-    ├── vite.config.ts
-    └── package.json
+├── frontend/                 React 19 + Vite + Tailwind CSS 4
+│   ├── src/
+│   │   ├── pages/Index.tsx           书架首页
+│   │   ├── pages/Reader.tsx          阅读页 + 付费墙
+│   │   ├── pages/Shelf.tsx           我的书房
+│   │   ├── components/CheckoutDialog.tsx  结算弹窗
+│   │   ├── components/BookCover.tsx  纯 CSS 书封
+│   │   ├── components/SiteHeader.tsx 站点头部
+│   │   ├── lib/reader-api.ts         API 封装、类型、阅读偏好
+│   │   └── App.tsx / index.css       路由与主题
+│   ├── vite.config.ts
+│   └── package.json
+│
+├── deploy/                   部署相关
+│   ├── Dockerfile.backend    后端镜像（构建上下文=仓库根）
+│   ├── Dockerfile.frontend   前端镜像（构建 → Nginx）
+│   └── nginx.conf            容器内站点配置（SPA 回退 + /api 反代 + gzip）
+│
+├── docker-compose.yml        一键起前后端（端口 8080）
+├── vercel.json               Vercel 前端配置（含 /api rewrites）
+├── netlify.toml              Netlify 前端配置
+├── railway.toml              Railway 后端配置
+├── .dockerignore
+├── DEPLOY.md                 部署指南（三种方式 + 上线前清单）
+└── README.md
 ```
 
 ## 本地运行
@@ -71,6 +85,20 @@ pnpm dev
 ```
 
 打开 http://localhost:5173 即可。前端已把 `/api` 代理到 `3000`，无需额外配置。
+
+> 也支持 npm：把上面两处 `pnpm install` 换成 `npm ci`，`pnpm dev` 换成 `npm run dev` 即可。
+
+## 部署
+
+完整步骤见 **[DEPLOY.md](./DEPLOY.md)**，含三种方式与上线前改动清单。
+
+| 方式 | 组成 | 命令 / 入口 |
+|---|---|---|
+| A · 全托管 | Vercel（前端）+ Railway（后端） | 导入仓库即可，配置见 `vercel.json`、`railway.toml` |
+| B · 单机容器 | Nginx + Node，同域无跨域 | `docker compose up -d --build` → `http://IP:8080` |
+| C · 纯静态 | 仅前端 | `cd frontend && npm run build`，产物 `frontend/dist` |
+
+无论哪种方式，后端都必须长驻运行并对 `backend/data` 挂载持久卷 —— 付费判定和订单都存在那里。
 
 ## 付费逻辑
 

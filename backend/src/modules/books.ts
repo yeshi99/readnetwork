@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express'
-import { BOOKS, findBook, chapterWordCount, Book } from '../data/books'
-import { createOrder, getUser, hasPurchased, saveProgress } from '../store'
-import { AppError } from '../middleware/errorHandler'
+import { BOOKS, findBook, chapterWordCount, Book } from '../data/books.js'
+import { createOrder, getUser, hasPurchased, saveProgress } from '../store/index.js'
+import { AppError } from '../middleware/errorHandler.js'
 
 export const booksRouter: Router = Router()
 

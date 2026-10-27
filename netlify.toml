@@ -1,0 +1,27 @@
+[build]
+  # 基础目录锁定到 frontend，Vercel 会自动识别 Vite 项目
+  base    = "frontend"
+  command = "npm ci && npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# SPA 路由回退：/read/bk-001、/mine 等前端路由直接访问不能 404
+[[redirects]]
+  from   = "/*"
+  to     = "/index.html"
+  status = 200
+
+# 带 hash 的静态资源长缓存
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "SAMEORIGIN"
+    Referrer-Policy = "strict-origin-when-cross-origin"
